@@ -629,17 +629,6 @@
     }, {})
   }
 
-  bss.css('@font-face', `
-  font-family: system;
-  font-style: normal;
-  font-weight: 300;
-  src: local(".SFNSText-Light"), local(".HelveticaNeueDeskInterface-Light"), local(".LucidaGrandeUI"), local("Ubuntu Light"), local("Segoe UI Light"), local("Roboto-Light"), local("DroidSans"), local("Tahoma");
-`);
-
-  bss.css('body', `
-  ff system
-`);
-
   function Vnode(tag, key, attrs0, children0, text, dom) {
   	return {tag: tag, key: key, attrs: attrs0, children: children0, text: text, dom: dom, domSize: undefined, state: undefined, events: undefined, instance: undefined}
   }
@@ -2247,170 +2236,19 @@
 
   window.m = m;
 
-  let todos
-    , focused = false;
+  let version = 'loading...';
 
-  function init() {
-    api.tx(t => [
-      t.none("ed0f276d2de47f9949286ced235dbcab"),
-      t.any("8dbd934db66a7aaf28a1b9bd26324491")
-    ])
-    .then(([, t]) => todos = t)
-    .catch(alert);
-  }
-
-  function add$1(title) {
-    const todo = { title };
-    todos.push(todo);
-    return api.one("bf758de6ab6ca62339b4162655c7f539", { title })
-    .then(t => Object.assign(todo, t))
-    .catch(err => {
-      window.alert(err);
-      todos.splice(todos.indexOf(todo), 1);
-    })
-  }
-
-  function setDone(todo_id, done) {
-    const todo = todos.find(t => t.todo_id === todo_id);
-    todo.done = done;
-    return api.one("2e7f598aa485d72d9edc4236081515bf", { todo_id, done })
-    .then(({ done }) => todo.done = done)
-    .catch(() => todo.done = !done)
-  }
-
-  function edit(todo_id, title) {
-    const todo = todos.find(t => t.todo_id === todo_id);
-    const previous = todo.title;
-    todo.title = title;
-    api.none("64027152cc802ac022ce0e16086ff903", { todo_id, title })
-    .catch(() => todo.title = previous);
-  }
-
-  function remove(todo_id) {
-    const todo = todos.find(t => t.todo_id === todo_id)
-        , idx = todos.indexOf(todo);
-    todos.splice(idx, 1);
-    api.none("2fbd96ba83d1f674a7f0f67c02776aa5", { todo_id })
-    .catch(() => todos.splice(idx, 0, todo));
-  }
+  api.one("3af34df1b0b95a5eab97c671ce3df020").then(data => {
+    version = data.version;
+  });
 
   m.mount(document.body, {
-
-    oninit: init,
-
-    view: () =>
-      m('main' + bss`
-      d flex
-      fd column
-      jc center
-      ai center
-      ta center
-    `,
-        m('h1', 'Todos'),
-
-        m('p',
-          !todos
-            ? 'Loading'
-            : !todos.length
-              ? 'No todos yet'
-              : todos.length + ' todos'),
-
-        todos && todos.length > 0 && m('ul' + bss`
-        list-style none
-        p 0
-        width 100%
-        max-width 480
-      `,
-          todos.map(({ todo_id, title, done }) =>
-            m('li' + bss`
-            d flex
-            ai center
-            p 8
-            m 4 0
-            br 3
-            bc ${ focused === todo_id && 'hsl(0, 0%, 95%)' }
-          `,
-              m('input' + bss`
-              m 8
-            `, {
-                type: 'checkbox',
-                onfocus: () => focused = todo_id,
-                onblur: () => focused = false,
-                checked: Boolean(done),
-                onchange: (e) => setDone(todo_id, e.target.checked)
-              }),
-              m('input' + bss`
-              d block
-              border none
-              p 4 8
-              fs 18
-              w 100%
-              bc white
-              br 4
-              text-decoration ${ done && 'line-through' }
-            `.$focus`
-              border none
-              outline none
-            `, {
-                onfocus: () => focused = todo_id,
-                onblur: () => focused = false,
-                onchange: (e) => edit(todo_id, e.target.value),
-                value: title
-              }),
-              m('button' + bss`
-              border none
-              bc transparent
-              w 24
-              h 24
-              m 4 8
-              background-image url('/images/trash.svg')
-              background-size 100% 100%
-            `, {
-                onfocus: () => focused = todo_id,
-                onblur: () => focused = false,
-                onclick: () => remove(todo_id)
-              }, )
-            )
-          )
-        ),
-
-        m('form' + bss`
-        d flex
-        m 20 0
-      `, {
-          onsubmit: e => {
-            e.preventDefault();
-            add$1(e.target.elements.title.value).then(() =>
-              e.target.elements.title.value = ''
-            );
-          }
-        },
-          m('input' + bss`
-          d block
-          fs 18
-          p 4 8
-          h 32
-          br 3 0 0 3
-          border 1px solid gray
-        `, {
-            name: 'title',
-            autocomplete: 'off'
-          }),
-          m('button' + bss`
-          tt uppercase
-          bc gray
-          h 100%
-          p 4 16
-          h 42
-          c white
-          br 0 3 3 0
-          border none
-          fs 14
-          fw bold
-        `, 'add')
-        )
+    view() {
+      return m('div',
+        m('h1', 'Hello HashQL!'),
+        m('p', version)
       )
-
+    }
   });
 
 }());
