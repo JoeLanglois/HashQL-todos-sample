@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const HashQL = require('hashql/server')
 const Pgp = require('pg-promise')
 const express = require('express')
@@ -5,10 +7,10 @@ const bodyParser = require('body-parser')
 const queries = require('./queries.json')
 
 const pgp = Pgp()
-    , db = pgp(process.env.POSTGRES_URL || 'postgres://localhost/hashql_todos_sample')
-    , app = express()
-    , port = process.env.PORT || 5000
-    , dev = process.env.NODE_ENV === 'development' ? true : undefined
+  , db = pgp(process.env.POSTGRES_URL || 'postgres://localhost/atlas')
+  , app = express()
+  , port = process.env.PORT || 5000
+  , dev = process.env.NODE_ENV === 'development' ? true : undefined
 
 const hql = HashQL({
   db,
